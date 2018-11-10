@@ -20,6 +20,7 @@ DI能防止对对象的直接依赖，这也是一种解耦方式
 Spring采用了IOC思想，并且其已经成为Spring的两大核心功能之一（IOC与AOP）
 其实现方式采用容器方式，容器内存储Bean的类信息、配置信息与实例缓存，并且外部也能够获取容器的信息
 将类定义成Bean，Spring支持XML、Java注解或JavaConfig形式
+获取容器的Bean实例，Spring也是支持XML、Java注解与JavaConfig形式
 
 #### Bean作用域
 Spring允许为Bean设置作用域（Bean即是类），支持如下作用域：
@@ -28,3 +29,23 @@ Spring允许为Bean设置作用域（Bean即是类），支持如下作用域：
 - Session：会话。在相同客户端下，返回的始终是同个实例；
 - Request：请求。同会话，同个请求下，Bean的实例始终相同；
 - Global Session：全局会话。
+
+### BeanFactory与ApplicationContext
+Spring使用BeanFactory接口来定义容器的基本功能，而ApplicationContext是基于BeanFactory升级的，用来添加容器的高级特性
+目前普遍都采用ApplicationContext而非BeanFactory
+
+### 容器创建过程
+Spring IOC的容器，分为初始化与使用两个阶段
+
+#### 初始化阶段
+Spring IOC的ApplicationContext接口有着很多实现类，常见的ClassPathXmlApplicationContext与FileSystemXmlApplicationContext
+以XMl配置为例，在容器初始化时，都会传入配置文件的路径，而初始化阶段所做的活，正是加载配置文件中的Bean属性信息到容器
+同时会对Bean提前实例化（前提条件成立），Beans中也支持replaced-method和lookup-method来对方法修改，由于会修改到Bean类的方法
+所以Spring IOC借助了AOP技术来实现此项功能
+
+#### 使用阶段
+容器初始化完毕后，接下来就可以从容器中获取Bean实例，获取实例时，Spring IOC会根据其属性来做对应的操作并返回，若需存放到成员属性
+则会以反射形式注入到目标字段
+
+三级缓存
+循环依赖
