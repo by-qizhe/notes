@@ -1,6 +1,7 @@
 # IOC与DIP
 IOC（Inversion Of Control）译名控制反转，基于依赖倒置（Dependency Inversion Principle）原则，两者都是思想而不是技术
-"控制的什么被反转了？获得依赖对象的方式反转了"这句话在2004年初由Martin Fowler的一篇论文提出，能够很好的表达IOC是什么
+
+> "控制的什么被反转了？获得依赖对象的方式反转了"这句话在2004年初由Martin Fowler的一篇论文提出，能够很好的表达IOC
 
 DIP官方定义：
 
