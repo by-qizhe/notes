@@ -1,5 +1,6 @@
 # IOC与DIP
 IOC（Inversion Of Control）译名控制反转，基于依赖倒置（Dependency Inversion Principle）原则
+
 而依赖注入（Dependency Injection）是IOC的实现方式
 
 DIP官方定义：
