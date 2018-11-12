@@ -28,10 +28,12 @@ Spring允许为Bean设置作用域（Bean即是类），支持如下作用域：
 - Prototype：原型。每次获取Bean的实例Spring都会重新实例化一个新的；
 - Session：会话。在相同客户端下，返回的始终是同个实例；
 - Request：请求。同会话，同个请求下，Bean的实例始终相同；
-- Global Session：全局会话。
+- Global Session：全局会话；
 
 ### BeanFactory与ApplicationContext
-Spring使用BeanFactory接口来定义容器的基本功能，而ApplicationContext是基于BeanFactory升级的，用来添加容器的高级特性
+早期的Spring实现IOC容器功能中，采用的是BeanFactory接口来定义基本功能
+而后来为了在容器上添加高级的特性
+而ApplicationContext是基于BeanFactory升级的，用来添加容器的高级特性
 目前普遍都采用ApplicationContext而非BeanFactory
 
 ### 容器创建过程
@@ -47,5 +49,38 @@ Spring IOC的ApplicationContext接口有着很多实现类，常见的ClassPathX
 容器初始化完毕后，接下来就可以从容器中获取Bean实例，获取实例时，Spring IOC会根据其属性来做对应的操作并返回，若需存放到成员属性
 则会以反射形式注入到目标字段
 
-三级缓存
-循环依赖
+### 循环依赖与三级缓存
+尽管Spring IOC能够帮助开发者提供Bean实例，但也存在了不同问题
+循环依赖就是一个比较严重的例子，而Spring IOC提供的解决方案就是三级缓存
+但要注意的是三级缓存也是无法彻底解决循环依赖的，有局限性
+好，先来讲讲循环依赖
+
+#### 什么是循环依赖
+相信用过Spring IOC的Bean依赖注入就不陌生，IOC可以注入类的实例，也可以"顺便"帮其成员属性注入所需要的类实例
+那么，当两个Bean的成员属性互相指向对方，就会出现循环依赖
+因为IOC在实例化Bean需要分成几个步骤，上面有说到，还要为其成员属性注入
+而在为成员属性依赖注入，就避免不了有可能出现循环依赖这种问题
+
+#### 什么是三级缓存
+那么，出现问题总要解决，而三级缓存就是被此设计而出
+三级缓存看其名字就能知道大概，没错，是用了三个缓存来实现的
+其底层机构是HashMap和ConcurrentHashMap，设计出三级，是因为配合Bean的实例多步骤
+从大体上看，三级缓存是以下三个成员属性：
+    
+    /** Cache of singleton objects: bean name --> bean instance */
+    private final Map<String, Object> singletonObjects = new ConcurrentHashMap<String, Object>(256);
+
+    /** Cache of singleton factories: bean name --> ObjectFactory */
+    private final Map<String, ObjectFactory<?>> singletonFactories = new HashMap<String, ObjectFactory<?>>(16);
+    
+    /** Cache of early singleton objects: bean name --> bean instance */
+    private final Map<String, Object> earlySingletonObjects = new HashMap<String, Object>(16);
+
+- singletonObjects：缓存bean的实例，单例的bean实例就缓存在这里；
+- singletonFactories：单例Bean的工厂实例；
+- earlySingletonObjects：提前曝光的bean实例，正是这个解决了循环依赖。获取Bean的实例，IOC首先会在singletonObjects中
+                         查询是否有该Bean实例的缓存，有则返回，没有则对该Bean类进行实例化，这里是关键，在实例化Bean类
+                         完成后，会将该实例放到earlySingletonObjects中，这里的操作直接解决了循环依赖问题，尽管这个类
+                         并不完整（因为其成员属性可能需要依赖注入对应的实例），接下来在检查成员属性是否要依赖注入，需要
+                         的话就去执行对应的依赖注入，如果出现循环依赖也没事，因为IOC也会在earlySingletonObjects中尝试
+                         获取；
