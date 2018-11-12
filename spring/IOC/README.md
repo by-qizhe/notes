@@ -1,7 +1,6 @@
 # IOC与DIP
-IOC（Inversion Of Control）译名控制反转，基于依赖倒置（Dependency Inversion Principle）原则，两者都是思想而不是技术
-
-> "控制的什么被反转了？获得依赖对象的方式反转了"这句话在2004年初由Martin Fowler的一篇论文提出，能够很好的表达IOC
+IOC（Inversion Of Control）译名控制反转，基于依赖倒置（Dependency Inversion Principle）原则
+而依赖注入（Dependency Injection）是IOC的实现方式
 
 DIP官方定义：
 
@@ -16,6 +15,7 @@ DIP官方定义：
 那IOC呢？上面已说到是基于依赖倒置原则，自然不会与DIP相差太大，刚好IOC本质也是将依赖的对象改变
 而依赖注入（Dependency Injection）是IOC的常见实现方式，DI能够帮助开发者实例化对象，开发者不需要去敲繁琐的new操作
 DI能防止对对象的直接依赖，这也是一种解耦方式
+> 取自Martin Fowler对IOC的作用："控制的什么被反转了？获得依赖对象的方式反转了"
 
 # Spring IOC
 Spring采用了IOC思想，并且其已经成为Spring的两大核心功能之一（IOC与AOP）
