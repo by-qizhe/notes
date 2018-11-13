@@ -9,3 +9,38 @@
 - Extend ClassLoader：二级加载器。Java编写。负责加载jre/lib/ext/下的扩展类；
 - Application ClassLoader：三级加载器。Java编写。负责加载CLASS_PATH环境变量指定路径下的类；
 - 自定义ClassLoader：自定义加载器。由开发者自定义加载；
+
+### 双亲委派原则
+可以从上面看到，类加载器分为了BootStrap、Extend和Application，其中BootStrap作为主要、核心的加载器，加载着
+如Object、Class这些核心类，而双亲委派原则会保证这些核心类一定是由BootStrap加载器加载，没有双亲委派原则的话，
+核心类可以由其它加载器加载，这将会导致严重的后果，举个场景：
+
+    以核心的Object类来讲，如果没有双亲委派原则进行约束，并且在CLASS_PATH路径下有个Object类（非官方的Object类），
+    那在加载Object类时，刚好使用了Application ClassLoader加载，自然加载的Object类就是非官方的Object类，我们
+    都知道所有的类都继承自Object，Object类稍微与官方的Object偏差，将会造成严重的错误，而双亲委派原则能够确保不
+    会出现这种情况。
+    
+那么，双亲委派原则是如何约束的呢？
+答：加载任意类时，都必须先由上一级加载器尝试加载，加载不到类就降一级加载器，由这个加载器加载，与此递减，如果所有
+加载器都没找到类，那么就会触发ClassNotFoundException，同样举个场景：
+
+    比如加载Object类，不管有没有指定类加载器（默认加载器为Application），最终都会由BootStrap尝试加载。Object类
+    肯定在jre/lib/下，所以BootStrap就能加载得到。
+    好，如果加载User类（用户自定义类），不指定加载器情况下，是由Application加载器加载，因为双亲委派原则，所以是先
+    由BootStrap加载，按正常来说，User类是不会在jre/lib/下的，当然可以将User类放到这个目录下，这样BootStrap就能
+    加载得到，这里假设BootStrap加载不到，那么降一级由Extend加载，Extend加载器搜索的路径是jre/lib/ext/目录，这里
+    假设也加载不到，那么就由Application加载，如果Application加载不到，那么就触发ClassNotFoundException，因为指定
+    的加载器就是Application，不会在往下了。如果指定的是Extend加载器加载，那么当Extends也加载不到的话，也会直接触发
+    ClassNotFoundException异常。
+
+### 类加载过程
+前面讲的类加载器，不同的类加载器区别只在于搜索目录不同而已，最终的类加载流程都是一致的，其类加载过程分为如下阶段：
+
+- 加载：将类加载到JVM管辖的内存区域中（Method Area/Meta Space），采用何种方式加载类的信息不规定，可以数据库、文件、缓存
+        等，当加载阶段完毕后，接下来的其余阶段，都是对内存中的类信息操作的。类加载器也就是在此阶段；
+- 连接（验证）：对类的信息进行安全性校验，确保代码性合法、jvm平台兼容等；
+- 连接（准备）：为static成员属性分配空间，并赋予初始值（这就是类属性为什么有默认值原因）和空间分配，对于基本类型且为final，会
+               在此阶段直接赋予最终值；
+- 连接（解析）：符号引用解析优化成直接引用，非必须阶段，得视能否直接定位目标而定；
+- 初始化：代码上的初始化，jvm会收集该类的静态块和静态成员；
+
