@@ -4,7 +4,7 @@ Spring Boot是Pivotal团队开发的一个轻量级框架，通过"约定大于�
 # Spring Boot特性
 
 - Create stand-alone Spring applications
-- 可创建独自运行的Spring项目
+- 可创建独自运行的Spring项目，以JAR包单独运行
 - Embed Tomcat, Jetty or Undertow directly (no need to deploy WAR files)
 - 项目直接嵌入Tomcat、Jetty或Undertow等容器（无需配置WAR文件）
 - Provide opinionated 'starter' dependencies to simplify your build configuration
